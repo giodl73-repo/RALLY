@@ -45,6 +45,7 @@ The first crate, `rally-core`, provides:
 - tabletop turn order, score track, and token-pool helpers,
 - deterministic shuffle/draw piles, phase tracks, action budgets, and grid
   coordinates for board/card/table games,
+- token conversion, market rows, area-control majority checks, and vote tallies,
 - bounded sampling and percentage helpers for repeatable simulations,
 - stable scenario/scene/beat references,
 - JSONL event-log row output,

@@ -284,6 +284,28 @@ impl TokenPool {
         *available += count.max(0);
         *available
     }
+
+    pub fn can_pay(&self, cost: &[(impl AsRef<str>, i32)]) -> bool {
+        cost.iter()
+            .all(|(token, count)| *count >= 0 && self.count(token.as_ref()) >= *count)
+    }
+
+    pub fn convert(
+        &mut self,
+        cost: &[(impl AsRef<str>, i32)],
+        output: &[(impl AsRef<str>, i32)],
+    ) -> bool {
+        if !self.can_pay(cost) {
+            return false;
+        }
+        for (token, count) in cost {
+            self.spend(token.as_ref(), *count);
+        }
+        for (token, count) in output {
+            self.gain(token.as_ref(), *count);
+        }
+        true
+    }
 }
 
 pub fn shuffle_with_seed<T>(rng: &mut RunSeed, items: &mut [T]) {
@@ -330,6 +352,35 @@ impl<T> DrawPile<T> {
     pub fn recycle_discard(&mut self, rng: &mut RunSeed) {
         self.draw.append(&mut self.discard);
         self.shuffle_draw(rng);
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MarketRow<T> {
+    slots: Vec<Option<T>>,
+}
+
+impl<T> MarketRow<T> {
+    pub fn new(size: usize) -> Self {
+        let mut slots = Vec::new();
+        slots.resize_with(size, || None);
+        Self { slots }
+    }
+
+    pub fn slots(&self) -> &[Option<T>] {
+        &self.slots
+    }
+
+    pub fn fill_from(&mut self, pile: &mut DrawPile<T>) {
+        for slot in &mut self.slots {
+            if slot.is_none() {
+                *slot = pile.draw();
+            }
+        }
+    }
+
+    pub fn take(&mut self, index: usize) -> Option<T> {
+        self.slots.get_mut(index).and_then(Option::take)
     }
 }
 
@@ -444,6 +495,85 @@ impl RectGrid {
             .orthogonal_neighbors()
             .into_iter()
             .filter(|neighbor| self.contains(*neighbor))
+            .collect()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AreaControl {
+    areas: BTreeMap<String, BTreeMap<String, i32>>,
+}
+
+impl AreaControl {
+    pub fn new(areas: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            areas: areas
+                .into_iter()
+                .map(|area| (area.into(), BTreeMap::new()))
+                .collect(),
+        }
+    }
+
+    pub fn place(&mut self, area: &str, seat: &str, count: i32) -> i32 {
+        let seats = self.areas.entry(area.to_string()).or_default();
+        let presence = seats.entry(seat.to_string()).or_insert(0);
+        *presence = (*presence + count).max(0);
+        *presence
+    }
+
+    pub fn presence(&self, area: &str, seat: &str) -> i32 {
+        self.areas
+            .get(area)
+            .and_then(|seats| seats.get(seat))
+            .copied()
+            .unwrap_or(0)
+    }
+
+    pub fn controller(&self, area: &str) -> Option<(&str, i32)> {
+        let seats = self.areas.get(area)?;
+        let mut ranked = seats.iter().filter(|(_, count)| **count > 0);
+        let (leader, count) = ranked.next()?;
+        if ranked.any(|(_, other)| other == count) {
+            None
+        } else {
+            Some((leader.as_str(), *count))
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct VoteTally {
+    votes: BTreeMap<String, i32>,
+}
+
+impl VoteTally {
+    pub fn new(candidates: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            votes: candidates
+                .into_iter()
+                .map(|candidate| (candidate.into(), 0))
+                .collect(),
+        }
+    }
+
+    pub fn vote(&mut self, candidate: &str, count: i32) -> i32 {
+        let votes = self.votes.entry(candidate.to_string()).or_insert(0);
+        *votes += count.max(0);
+        *votes
+    }
+
+    pub fn count(&self, candidate: &str) -> i32 {
+        self.votes.get(candidate).copied().unwrap_or(0)
+    }
+
+    pub fn winners(&self) -> Vec<&str> {
+        let Some(max) = self.votes.values().max().copied() else {
+            return Vec::new();
+        };
+        self.votes
+            .iter()
+            .filter(|(_, votes)| **votes == max)
+            .map(|(candidate, _)| candidate.as_str())
             .collect()
     }
 }
@@ -770,6 +900,9 @@ mod tests {
         assert!(tokens.spend("tiger", 1));
         assert!(!tokens.spend("coin", 2));
         assert_eq!(tokens.gain("coin", 2), 3);
+        assert!(tokens.convert(&[("coin", 2)], &[("vp", 5)]));
+        assert_eq!(tokens.count("coin"), 1);
+        assert_eq!(tokens.count("vp"), 5);
     }
 
     #[test]
@@ -789,6 +922,26 @@ mod tests {
         left.recycle_discard(&mut left_rng);
         assert_eq!(left.discard_count(), 0);
         assert_eq!(left.remaining(), 3);
+    }
+
+    #[test]
+    fn market_rows_refill_from_draw_piles() {
+        let mut pile = DrawPile::new(["alpha", "beta", "gamma"]);
+        let mut market = MarketRow::new(2);
+
+        market.fill_from(&mut pile);
+        assert_eq!(
+            market.slots().iter().filter(|slot| slot.is_some()).count(),
+            2
+        );
+        assert_eq!(pile.remaining(), 1);
+        assert!(market.take(0).is_some());
+        market.fill_from(&mut pile);
+        assert_eq!(
+            market.slots().iter().filter(|slot| slot.is_some()).count(),
+            2
+        );
+        assert_eq!(pile.remaining(), 0);
     }
 
     #[test]
@@ -816,6 +969,25 @@ mod tests {
                 GridPoint::new(0, 0)
             ]
         );
+    }
+
+    #[test]
+    fn area_control_and_votes_handle_ties() {
+        let mut control = AreaControl::new(["temple", "market"]);
+        control.place("temple", "blue", 2);
+        control.place("temple", "red", 1);
+        assert_eq!(control.controller("temple"), Some(("blue", 2)));
+        control.place("temple", "red", 1);
+        assert_eq!(control.controller("temple"), None);
+        assert_eq!(control.presence("market", "blue"), 0);
+
+        let mut votes = VoteTally::new(["star", "bold"]);
+        votes.vote("star", 2);
+        votes.vote("bold", 2);
+        assert_eq!(votes.count("star"), 2);
+        assert_eq!(votes.winners(), vec!["bold", "star"]);
+        votes.vote("star", 1);
+        assert_eq!(votes.winners(), vec!["star"]);
     }
 
     #[test]
