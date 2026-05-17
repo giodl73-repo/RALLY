@@ -64,6 +64,229 @@ pub fn percent_of(numerator: u32, denominator: u32) -> f64 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RollSpec {
+    pub expression: String,
+    pub count: u32,
+    pub sides: u32,
+    pub modifier: i32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RollKeep {
+    Sum,
+    Highest,
+    Lowest,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RollOutcome {
+    pub spec: RollSpec,
+    pub rolls: Vec<u32>,
+    pub kept: Option<u32>,
+    pub total: i32,
+    pub seed_position: u64,
+}
+
+pub struct DiceRoller {
+    rng: RunSeed,
+    position: u64,
+}
+
+impl DiceRoller {
+    pub fn new(seed: &str) -> Self {
+        Self {
+            rng: RunSeed::new(seed),
+            position: 0,
+        }
+    }
+
+    pub fn position(&self) -> u64 {
+        self.position
+    }
+
+    pub fn roll(&mut self, expression: &str) -> Result<RollOutcome, String> {
+        self.roll_keep(expression, RollKeep::Sum)
+    }
+
+    pub fn roll_keep(&mut self, expression: &str, keep: RollKeep) -> Result<RollOutcome, String> {
+        self.roll_with_extra(expression, keep, 0)
+    }
+
+    pub fn roll_with_extra(
+        &mut self,
+        expression: &str,
+        keep: RollKeep,
+        extra_rolls: u32,
+    ) -> Result<RollOutcome, String> {
+        let spec = parse_roll_expression(expression)?;
+        let modifier = spec.modifier;
+        let mut rolls = (0..(spec.count + extra_rolls))
+            .map(|_| self.roll_die_value(spec.sides))
+            .collect::<Vec<_>>();
+        let kept = match keep {
+            RollKeep::Sum => None,
+            RollKeep::Highest => rolls.iter().copied().max(),
+            RollKeep::Lowest => rolls.iter().copied().min(),
+        };
+        let base = kept.unwrap_or_else(|| rolls.iter().sum());
+        let outcome = RollOutcome {
+            spec,
+            rolls: {
+                rolls.shrink_to_fit();
+                rolls
+            },
+            kept,
+            total: base as i32 + modifier,
+            seed_position: self.position,
+        };
+        self.position += 1;
+        Ok(outcome)
+    }
+
+    pub fn roll_die_value(&mut self, sides: u32) -> u32 {
+        if sides == 0 {
+            0
+        } else {
+            self.rng.next_bounded(sides) + 1
+        }
+    }
+}
+
+pub fn parse_roll_expression(expression: &str) -> Result<RollSpec, String> {
+    let expr = expression.trim().to_ascii_lowercase();
+    let Some((count_text, rest)) = expr.split_once('d') else {
+        return Err(format!("invalid expression: {expression}"));
+    };
+    let count = count_text
+        .parse::<u32>()
+        .map_err(|_| format!("invalid expression: {expression}"))?;
+    let split_at = rest.find(['+', '-']).unwrap_or(rest.len());
+    let sides = rest[..split_at]
+        .parse::<u32>()
+        .map_err(|_| format!("invalid expression: {expression}"))?;
+    let modifier = if split_at < rest.len() {
+        rest[split_at..]
+            .parse::<i32>()
+            .map_err(|_| format!("invalid expression: {expression}"))?
+    } else {
+        0
+    };
+    if count == 0 || sides == 0 {
+        return Err(format!("invalid expression: {expression}"));
+    }
+    Ok(RollSpec {
+        expression: expression.to_string(),
+        count,
+        sides,
+        modifier,
+    })
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TurnOrder {
+    seats: Vec<String>,
+    active: usize,
+    round: u32,
+}
+
+impl TurnOrder {
+    pub fn new(seats: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            seats: seats.into_iter().map(Into::into).collect(),
+            active: 0,
+            round: 1,
+        }
+    }
+
+    pub fn active(&self) -> Option<&str> {
+        self.seats.get(self.active).map(String::as_str)
+    }
+
+    pub fn round(&self) -> u32 {
+        self.round
+    }
+
+    pub fn advance(&mut self) -> Option<&str> {
+        if self.seats.is_empty() {
+            return None;
+        }
+        self.active = (self.active + 1) % self.seats.len();
+        if self.active == 0 {
+            self.round += 1;
+        }
+        self.active()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScoreTrack {
+    scores: BTreeMap<String, i32>,
+}
+
+impl ScoreTrack {
+    pub fn new(seats: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            scores: seats.into_iter().map(|seat| (seat.into(), 0)).collect(),
+        }
+    }
+
+    pub fn add(&mut self, seat: &str, delta: i32) -> i32 {
+        let score = self.scores.entry(seat.to_string()).or_insert(0);
+        *score += delta;
+        *score
+    }
+
+    pub fn get(&self, seat: &str) -> i32 {
+        self.scores.get(seat).copied().unwrap_or(0)
+    }
+
+    pub fn leader(&self) -> Option<(&str, i32)> {
+        self.scores
+            .iter()
+            .max_by_key(|(_, score)| *score)
+            .map(|(seat, score)| (seat.as_str(), *score))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TokenPool {
+    tokens: BTreeMap<String, i32>,
+}
+
+impl TokenPool {
+    pub fn new(tokens: impl IntoIterator<Item = (impl Into<String>, i32)>) -> Self {
+        Self {
+            tokens: tokens
+                .into_iter()
+                .map(|(name, count)| (name.into(), count.max(0)))
+                .collect(),
+        }
+    }
+
+    pub fn count(&self, token: &str) -> i32 {
+        self.tokens.get(token).copied().unwrap_or(0)
+    }
+
+    pub fn spend(&mut self, token: &str, count: i32) -> bool {
+        if count <= 0 || self.count(token) < count {
+            return false;
+        }
+        if let Some(available) = self.tokens.get_mut(token) {
+            *available -= count;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn gain(&mut self, token: &str, count: i32) -> i32 {
+        let available = self.tokens.entry(token.to_string()).or_insert(0);
+        *available += count.max(0);
+        *available
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SimulationRun {
     pub run_id: String,
     pub adapter: String,
@@ -344,6 +567,47 @@ mod tests {
         }
         assert_eq!(percent_of(1, 4), 25.0);
         assert_eq!(percent_of(1, 0), 0.0);
+    }
+
+    #[test]
+    fn dice_rolls_are_repeatable_and_support_keep_modes() {
+        let mut left = DiceRoller::new("quest-scene");
+        let mut right = DiceRoller::new("quest-scene");
+
+        let l = left
+            .roll_with_extra("1d20+5", RollKeep::Highest, 1)
+            .expect("roll succeeds");
+        let r = right
+            .roll_with_extra("1d20+5", RollKeep::Highest, 1)
+            .expect("roll succeeds");
+
+        assert_eq!(l, r);
+        assert_eq!(l.spec.count, 1);
+        assert_eq!(l.spec.sides, 20);
+        assert_eq!(l.spec.modifier, 5);
+        assert_eq!(l.rolls.len(), 2);
+        assert_eq!(l.kept, l.rolls.iter().copied().max());
+        assert_eq!(l.seed_position, 0);
+        assert_eq!(left.position(), 1);
+    }
+
+    #[test]
+    fn board_primitives_track_turns_scores_and_tokens() {
+        let mut turns = TurnOrder::new(["human", "ai"]);
+        assert_eq!(turns.active(), Some("human"));
+        assert_eq!(turns.advance(), Some("ai"));
+        assert_eq!(turns.advance(), Some("human"));
+        assert_eq!(turns.round(), 2);
+
+        let mut scores = ScoreTrack::new(["human", "ai"]);
+        scores.add("human", 3);
+        scores.add("ai", 1);
+        assert_eq!(scores.leader(), Some(("human", 3)));
+
+        let mut tokens = TokenPool::new([("tiger", 2), ("coin", 1)]);
+        assert!(tokens.spend("tiger", 1));
+        assert!(!tokens.spend("coin", 2));
+        assert_eq!(tokens.gain("coin", 2), 3);
     }
 
     #[test]
