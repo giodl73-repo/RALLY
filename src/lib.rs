@@ -128,6 +128,85 @@ impl SimulationMetric {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub struct ComparisonDelta {
+    pub metric: String,
+    pub baseline: f64,
+    pub candidate: f64,
+    pub direction: String,
+}
+
+impl ComparisonDelta {
+    pub fn higher_is_better(metric: &str, baseline: f64, candidate: f64) -> Self {
+        Self {
+            metric: metric.to_string(),
+            baseline,
+            candidate,
+            direction: "higher".to_string(),
+        }
+    }
+
+    pub fn lower_is_better(metric: &str, baseline: f64, candidate: f64) -> Self {
+        Self {
+            metric: metric.to_string(),
+            baseline,
+            candidate,
+            direction: "lower".to_string(),
+        }
+    }
+
+    pub fn change(&self) -> f64 {
+        self.candidate - self.baseline
+    }
+
+    pub fn improved(&self) -> bool {
+        if self.direction == "lower" {
+            self.candidate < self.baseline
+        } else {
+            self.candidate > self.baseline
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ComparisonReport {
+    pub subject: String,
+    pub baseline_id: String,
+    pub candidate_id: String,
+    pub deltas: Vec<ComparisonDelta>,
+}
+
+impl ComparisonReport {
+    pub fn new(subject: &str, baseline_id: &str, candidate_id: &str) -> Self {
+        Self {
+            subject: subject.to_string(),
+            baseline_id: baseline_id.to_string(),
+            candidate_id: candidate_id.to_string(),
+            deltas: Vec::new(),
+        }
+    }
+
+    pub fn add_delta(&mut self, delta: ComparisonDelta) {
+        self.deltas.push(delta);
+    }
+
+    pub fn improved_count(&self) -> usize {
+        self.deltas.iter().filter(|delta| delta.improved()).count()
+    }
+
+    pub fn status(&self) -> &'static str {
+        if self.deltas.is_empty() {
+            "empty"
+        } else if self.improved_count() == self.deltas.len() {
+            "improved"
+        } else if self.improved_count() == 0 {
+            "regressed"
+        } else {
+            "mixed"
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BeatRef {
     pub scenario_id: String,
@@ -313,6 +392,21 @@ mod tests {
 
         assert_eq!(trace.actions, 1);
         assert_eq!(trace.blocked_turns, 1);
+    }
+
+    #[test]
+    fn comparison_reports_classify_improvement() {
+        let mut report = ComparisonReport::new("wavelength", "baseline", "guided-final-set");
+        report.add_delta(ComparisonDelta::higher_is_better("pass_rate", 38.9, 63.9));
+        report.add_delta(ComparisonDelta::lower_is_better(
+            "p95_minutes",
+            215.0,
+            201.0,
+        ));
+
+        assert_eq!(report.status(), "improved");
+        assert_eq!(report.improved_count(), 2);
+        assert_eq!(report.deltas[0].change(), 25.0);
     }
 
     #[test]
