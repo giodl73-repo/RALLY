@@ -19,6 +19,8 @@ seeded runs, actor traces, metrics, and validation rows.
   smoke-test success.
 - Add TIGRIS rule-variant comparison so Parliament can test fixes for weak
   adoption pressure.
+- Add HUNT variant comparison so WAVELENGTH can test fixes for P5/P6
+  bottlenecks and target-window pressure.
 - Track adapter-owned policy explicitly so RALLY stays generic.
 
 ## Validation
@@ -37,4 +39,5 @@ cd ..\..\hunt\tools\hunt-sim
 cargo test --quiet
 cargo run --quiet -- --seed wavelength-smoke
 cargo run --quiet -- --seed wavelength-smoke --runs 12
+cargo run --quiet -- --seed wavelength-smoke --compare-variants --runs 12
 ```
