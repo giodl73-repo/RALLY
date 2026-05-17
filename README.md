@@ -4,9 +4,10 @@ Shared Rust playtest and simulation-validation infrastructure for the Games
 Design series.
 
 RALLY is the common substrate for deterministic runs, event traces, validation
-reports, and evidence packets across repos such as AMAZE, QUEST, HUNT, and
-TIGRIS. It should keep reusable mechanics here while each game repo keeps its
-own creative policy, Markdown contracts, personas, and review language.
+reports, comparison reports, and evidence packets across repos such as AMAZE,
+QUEST, HUNT, TIGRIS, and CERES. It should keep reusable mechanics here while
+each consumer repo keeps its own creative or economic policy, Markdown
+contracts, personas, and review language.
 
 ## First command
 
@@ -50,8 +51,9 @@ The first crate, `rally-core`, provides:
 - bounded sampling and percentage helpers for repeatable simulations,
 - stable scenario/scene/beat references,
 - JSONL event-log row output,
-- validation findings and report status,
-- packet manifest scaffolding.
+- validation findings and report status with neutral JSON output,
+- comparison reports with neutral JSON output,
+- packet manifest scaffolding with neutral JSON output.
 
 ## First consumers
 
@@ -61,10 +63,12 @@ The first crate, `rally-core`, provides:
 | QUEST | Gradually port deterministic dice, event logging, checkpoint validation, and mechanical beat validation from Python. |
 | HUNT | Validate puzzle graphs, solver coverage, blind-test manifests, hint timing, and publish readiness. |
 | TIGRIS | Validate Parliament stage completeness, axis/stake rows, seeded playthrough manifests, and corpus/rubric consistency. |
+| CERES | Model real local-production economies and industries while using only RALLY's neutral run/report/evidence spine. |
 
 ## Non-goals
 
-- RALLY does not own escape-room, D&D, puzzle-hunt, or board-game creative policy.
+- RALLY does not own escape-room, D&D, puzzle-hunt, board-game, or CERES
+  economic policy.
 - RALLY does not replace repo-local skills or review panels.
 - RALLY does not require every game repo to rewrite all existing tools at once.
 - RALLY does not publish private room, campaign, vendor, or playtest details.

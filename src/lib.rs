@@ -755,6 +755,18 @@ impl ComparisonDelta {
             self.candidate > self.baseline
         }
     }
+
+    pub fn to_json(&self) -> String {
+        format!(
+            "{{\"metric\":\"{}\",\"baseline\":{},\"candidate\":{},\"direction\":\"{}\",\"change\":{},\"improved\":{}}}",
+            escape_json(&self.metric),
+            json_f64(self.baseline),
+            json_f64(self.candidate),
+            escape_json(&self.direction),
+            json_f64(self.change()),
+            self.improved()
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -793,6 +805,24 @@ impl ComparisonReport {
         } else {
             "mixed"
         }
+    }
+
+    pub fn to_json(&self) -> String {
+        let deltas = self
+            .deltas
+            .iter()
+            .map(ComparisonDelta::to_json)
+            .collect::<Vec<_>>()
+            .join(",");
+        format!(
+            "{{\"subject\":\"{}\",\"baseline_id\":\"{}\",\"candidate_id\":\"{}\",\"status\":\"{}\",\"improved_count\":{},\"deltas\":[{}]}}",
+            escape_json(&self.subject),
+            escape_json(&self.baseline_id),
+            escape_json(&self.candidate_id),
+            self.status(),
+            self.improved_count(),
+            deltas
+        )
     }
 }
 
@@ -933,6 +963,16 @@ impl ValidationFinding {
             message: message.to_string(),
         }
     }
+
+    pub fn to_json(&self) -> String {
+        format!(
+            "{{\"severity\":\"{}\",\"code\":\"{}\",\"location\":\"{}\",\"message\":\"{}\"}}",
+            escape_json(&self.severity),
+            escape_json(&self.code),
+            escape_json(&self.location),
+            escape_json(&self.message)
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -955,6 +995,21 @@ impl ValidationReport {
             "review"
         }
     }
+
+    pub fn to_json(&self) -> String {
+        let findings = self
+            .findings
+            .iter()
+            .map(ValidationFinding::to_json)
+            .collect::<Vec<_>>()
+            .join(",");
+        format!(
+            "{{\"subject\":\"{}\",\"status\":\"{}\",\"findings\":[{}]}}",
+            escape_json(&self.subject),
+            self.status(),
+            findings
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -973,6 +1028,28 @@ impl PacketManifest {
 
     pub fn add_artifact(&mut self, name: &str, path: &str) {
         self.artifacts.insert(name.to_string(), path.to_string());
+    }
+
+    pub fn to_json(&self) -> String {
+        let artifacts = self
+            .artifacts
+            .iter()
+            .map(|(name, path)| format!("\"{}\":\"{}\"", escape_json(name), escape_json(path)))
+            .collect::<Vec<_>>()
+            .join(",");
+        format!(
+            "{{\"packet_id\":\"{}\",\"artifacts\":{{{}}}}}",
+            escape_json(&self.packet_id),
+            artifacts
+        )
+    }
+}
+
+fn json_f64(value: f64) -> String {
+    if value.is_finite() {
+        value.to_string()
+    } else {
+        "null".to_string()
     }
 }
 
@@ -1221,6 +1298,7 @@ mod tests {
         assert_eq!(report.status(), "improved");
         assert_eq!(report.improved_count(), 2);
         assert_eq!(report.deltas[0].change(), 25.0);
+        assert!(report.to_json().contains("\"status\":\"improved\""));
     }
 
     #[test]
@@ -1234,6 +1312,26 @@ mod tests {
 
         assert!(entry.to_jsonl().contains("\"run_id\":\"SIM-001\""));
         assert!(entry.to_jsonl().contains("\\\"look at the dial\\\""));
+    }
+
+    #[test]
+    fn neutral_reports_and_packets_emit_json() {
+        let report = ValidationReport {
+            subject: "catalog".to_string(),
+            findings: vec![ValidationFinding::warning(
+                "missing-source",
+                "catalog/entry.md",
+                "citation needed",
+            )],
+        };
+        assert!(report.to_json().contains("\"status\":\"review\""));
+
+        let mut packet = PacketManifest::new("packet-1");
+        packet.add_artifact("catalog", "catalog\\smithing");
+        packet.add_artifact("summary", "results/summary.json");
+        let json = packet.to_json();
+        assert!(json.contains("\"packet_id\":\"packet-1\""));
+        assert!(json.contains("catalog\\\\smithing"));
     }
 
     #[test]
