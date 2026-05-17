@@ -12,11 +12,11 @@ racing.
 | 1 | Cannonball Run | Foundation, core crate, docs, and first adoption plans | done |
 | 2 | Mille Miglia | AMAZE adapter extraction from the existing Rust harness | done |
 | 3 | Dakar Rally | QUEST full Rust mechanics conversion backed by RALLY seeds | done |
-| 4 | 24 Hours of Le Mans | HUNT and TIGRIS endurance validation adapters | planned |
+| 4 | 24 Hours of Le Mans | HUNT and TIGRIS endurance validation adapters | active |
 
 ## Active wave
 
-- No active wave. Dakar Rally is complete.
+- 24 Hours of Le Mans: HUNT/TIGRIS simulator pilots are underway.
 
 ## Protocol
 

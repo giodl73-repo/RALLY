@@ -75,6 +75,11 @@ Planned capabilities:
 - TIGRIS stage/stake/rubric consistency validation.
 - Adapter-owned policy with RALLY-owned run/report/packet primitives.
 
+First pilots:
+
+- `HUNT/tools/hunt-sim`: WAVELENGTH feeder/meta solve-time simulation.
+- `TIGRIS/tools/tigris-sim`: Parliament axis-collision/adoption simulation.
+
 ## Non-goals
 
 - RALLY does not centralize game design policy.
