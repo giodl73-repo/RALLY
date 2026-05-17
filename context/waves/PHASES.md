@@ -10,13 +10,13 @@ racing.
 | Phase | Name | Focus | Status |
 |---:|---|---|---|
 | 1 | Cannonball Run | Foundation, core crate, docs, and first adoption plans | done |
-| 2 | Mille Miglia | AMAZE adapter extraction from the existing Rust harness | planned |
+| 2 | Mille Miglia | AMAZE adapter extraction from the existing Rust harness | done |
 | 3 | Dakar Rally | QUEST mechanics compatibility behind a RALLY adapter | planned |
 | 4 | 24 Hours of Le Mans | HUNT and TIGRIS endurance validation adapters | planned |
 
 ## Active wave
 
-- No active wave. Cannonball Run is complete.
+- No active wave. Mille Miglia is complete.
 
 ## Protocol
 

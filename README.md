@@ -41,6 +41,7 @@ RALLY phases use famous speed races as planning mnemonics:
 The first crate, `rally-core`, provides:
 
 - deterministic seeded run primitives,
+- bounded sampling and percentage helpers for repeatable simulations,
 - stable scenario/scene/beat references,
 - JSONL event-log row output,
 - validation findings and report status,
