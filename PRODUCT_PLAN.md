@@ -23,7 +23,7 @@ illegal racing.
 |---:|---|---|
 | 1 | Cannonball Run | Foundation, seeded core, and first consumer plans. |
 | 2 | Mille Miglia | AMAZE adapter extraction from an existing Rust harness. |
-| 3 | Dakar Rally | QUEST mechanics compatibility across rough narrative/mechanical terrain. |
+| 3 | Dakar Rally | QUEST full Rust mechanics conversion across rough narrative/mechanical terrain. |
 | 4 | 24 Hours of Le Mans | HUNT and TIGRIS endurance validation across long pipelines and corpora. |
 
 ## Phase 1: Cannonball Run - Foundation
@@ -51,13 +51,15 @@ Planned capabilities:
 - Shared packet manifest conventions.
 - AMAZE adapter compatibility tests.
 
-## Phase 3: Dakar Rally - QUEST mechanics port
+## Phase 3: Dakar Rally - QUEST Rust conversion
 
-Goal: prototype a QUEST adapter boundary for deterministic mechanics.
+Goal: replace the QUEST Python harness with a Rust CLI backed by RALLY seeded
+run primitives.
 
 Planned capabilities:
 
-- Dice/event-log compatibility against QUEST Python behavior.
+- Rust-only QUEST CLI for start/status/resume/set-route/roll/bind-module.
+- Dice/event-log compatibility against prior QUEST behavior.
 - Checkpoint schema validation.
 - Mechanical beat validation surfaces.
 - No narrative rewrite.
@@ -78,6 +80,6 @@ Planned capabilities:
 - RALLY does not centralize game design policy.
 - RALLY does not replace Markdown-first authoring.
 - RALLY does not absorb the existing AMAZE harness wholesale.
-- RALLY does not force a big-bang QUEST rewrite.
+- RALLY does not centralize QUEST-specific adventure policy.
 - RALLY does not depend on crates.io publishing; downstream use should depend on
   GitHub repositories.
