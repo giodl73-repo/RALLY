@@ -46,6 +46,7 @@ The first crate, `rally-core`, provides:
 - deterministic shuffle/draw piles, phase tracks, action budgets, and grid
   coordinates for board/card/table games,
 - token conversion, market rows, area-control majority checks, and vote tallies,
+- hidden-information zones and structured board-event JSONL rows,
 - bounded sampling and percentage helpers for repeatable simulations,
 - stable scenario/scene/beat references,
 - JSONL event-log row output,

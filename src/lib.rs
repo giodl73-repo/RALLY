@@ -579,6 +579,80 @@ impl VoteTally {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Visibility {
+    Public,
+    PrivateTo(String),
+    Hidden,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ZoneItem<T> {
+    pub item: T,
+    pub visibility: Visibility,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HiddenZone<T> {
+    items: Vec<ZoneItem<T>>,
+}
+
+impl<T> HiddenZone<T> {
+    pub fn new() -> Self {
+        Self { items: Vec::new() }
+    }
+
+    pub fn push_public(&mut self, item: T) {
+        self.items.push(ZoneItem {
+            item,
+            visibility: Visibility::Public,
+        });
+    }
+
+    pub fn push_private(&mut self, owner: impl Into<String>, item: T) {
+        self.items.push(ZoneItem {
+            item,
+            visibility: Visibility::PrivateTo(owner.into()),
+        });
+    }
+
+    pub fn push_hidden(&mut self, item: T) {
+        self.items.push(ZoneItem {
+            item,
+            visibility: Visibility::Hidden,
+        });
+    }
+
+    pub fn len(&self) -> usize {
+        self.items.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
+
+    pub fn visible_to(&self, seat: &str) -> Vec<&T> {
+        self.items
+            .iter()
+            .filter(|entry| match &entry.visibility {
+                Visibility::Public => true,
+                Visibility::PrivateTo(owner) => owner == seat,
+                Visibility::Hidden => false,
+            })
+            .map(|entry| &entry.item)
+            .collect()
+    }
+
+    pub fn reveal(&mut self, index: usize) -> bool {
+        if let Some(entry) = self.items.get_mut(index) {
+            entry.visibility = Visibility::Public;
+            true
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SimulationRun {
     pub run_id: String,
     pub adapter: String,
@@ -762,6 +836,78 @@ impl EventLogEntry {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BoardEventEntry {
+    pub run_id: String,
+    pub event_type: String,
+    pub actor: Option<String>,
+    pub target: Option<String>,
+    pub quantity: i32,
+    pub detail: String,
+}
+
+impl BoardEventEntry {
+    pub fn new(
+        run_id: &str,
+        event_type: &str,
+        actor: Option<&str>,
+        target: Option<&str>,
+        quantity: i32,
+        detail: &str,
+    ) -> Self {
+        Self {
+            run_id: run_id.to_string(),
+            event_type: event_type.to_string(),
+            actor: actor.map(str::to_string),
+            target: target.map(str::to_string),
+            quantity,
+            detail: detail.to_string(),
+        }
+    }
+
+    pub fn card_draw(run_id: &str, actor: &str, quantity: i32, detail: &str) -> Self {
+        Self::new(run_id, "card_draw", Some(actor), None, quantity, detail)
+    }
+
+    pub fn market_refill(run_id: &str, target: &str, quantity: i32, detail: &str) -> Self {
+        Self::new(
+            run_id,
+            "market_refill",
+            None,
+            Some(target),
+            quantity,
+            detail,
+        )
+    }
+
+    pub fn resource_conversion(run_id: &str, actor: &str, detail: &str) -> Self {
+        Self::new(run_id, "resource_conversion", Some(actor), None, 1, detail)
+    }
+
+    pub fn area_control(run_id: &str, actor: &str, target: &str, quantity: i32) -> Self {
+        Self::new(
+            run_id,
+            "area_control",
+            Some(actor),
+            Some(target),
+            quantity,
+            "presence changed",
+        )
+    }
+
+    pub fn to_jsonl(&self) -> String {
+        format!(
+            "{{\"run_id\":\"{}\",\"event_type\":\"{}\",\"actor\":{},\"target\":{},\"quantity\":{},\"detail\":\"{}\"}}\n",
+            escape_json(&self.run_id),
+            escape_json(&self.event_type),
+            optional_json_string(self.actor.as_deref()),
+            optional_json_string(self.target.as_deref()),
+            self.quantity,
+            escape_json(&self.detail)
+        )
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ValidationFinding {
     pub severity: String,
     pub code: String,
@@ -835,6 +981,12 @@ fn escape_json(value: &str) -> String {
         .replace('\\', "\\\\")
         .replace('"', "\\\"")
         .replace('\n', "\\n")
+}
+
+fn optional_json_string(value: Option<&str>) -> String {
+    value
+        .map(|value| format!("\"{}\"", escape_json(value)))
+        .unwrap_or_else(|| "null".to_string())
 }
 
 #[cfg(test)]
@@ -991,6 +1143,24 @@ mod tests {
     }
 
     #[test]
+    fn hidden_zones_filter_visibility_by_seat() {
+        let mut zone = HiddenZone::new();
+        zone.push_public("board card");
+        zone.push_private("blue", "blue hand");
+        zone.push_private("red", "red hand");
+        zone.push_hidden("deck top");
+
+        assert_eq!(zone.len(), 4);
+        assert_eq!(zone.visible_to("blue"), vec![&"board card", &"blue hand"]);
+        assert_eq!(zone.visible_to("red"), vec![&"board card", &"red hand"]);
+        assert!(zone.reveal(3));
+        assert_eq!(
+            zone.visible_to("blue"),
+            vec![&"board card", &"blue hand", &"deck top"]
+        );
+    }
+
+    #[test]
     fn validation_report_status_reflects_findings() {
         let pass = ValidationReport {
             subject: "scenario".to_string(),
@@ -1064,5 +1234,22 @@ mod tests {
 
         assert!(entry.to_jsonl().contains("\"run_id\":\"SIM-001\""));
         assert!(entry.to_jsonl().contains("\\\"look at the dial\\\""));
+    }
+
+    #[test]
+    fn board_event_entries_emit_structured_jsonl() {
+        let draw = BoardEventEntry::card_draw("run-1", "blue", 2, "drew from market");
+        let refill = BoardEventEntry::market_refill("run-1", "market", 3, "refilled row");
+        let conversion =
+            BoardEventEntry::resource_conversion("run-1", "red", "paid 2 corn for 1 vp");
+        let control = BoardEventEntry::area_control("run-1", "blue", "temple", 2);
+
+        assert!(draw.to_jsonl().contains("\"event_type\":\"card_draw\""));
+        assert!(draw.to_jsonl().contains("\"actor\":\"blue\""));
+        assert!(refill.to_jsonl().contains("\"target\":\"market\""));
+        assert!(conversion
+            .to_jsonl()
+            .contains("\"event_type\":\"resource_conversion\""));
+        assert!(control.to_jsonl().contains("\"quantity\":2"));
     }
 }
