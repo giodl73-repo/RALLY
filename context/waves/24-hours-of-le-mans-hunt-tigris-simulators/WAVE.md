@@ -22,6 +22,8 @@ seeded runs, actor traces, metrics, and validation rows.
 - Add HUNT variant comparison so WAVELENGTH can test fixes for P5/P6
   bottlenecks and target-window pressure.
 - Standardize simulator variant output with RALLY comparison reports.
+- Expand beyond the first pilots with HUNT Game Night multi-author simulation
+  and TIGRIS UPSTAGE party-game robustness simulation.
 - Track adapter-owned policy explicitly so RALLY stays generic.
 
 ## Validation
@@ -35,10 +37,12 @@ cargo test --quiet
 cargo run --quiet -- --seed parliament-smoke
 cargo run --quiet -- --seed parliament-smoke --runs 20 --players 4
 cargo run --quiet -- --seed parliament-smoke --compare-variants --runs 20 --players 4
+cargo run --quiet -- --game upstage --seed upstage-smoke --players 8 --compare-variants --runs 24
 
 cd ..\..\hunt\tools\hunt-sim
 cargo test --quiet
 cargo run --quiet -- --seed wavelength-smoke
 cargo run --quiet -- --seed wavelength-smoke --runs 12
 cargo run --quiet -- --seed wavelength-smoke --compare-variants --runs 12
+cargo run --quiet -- --scenario boardgames --seed game-night-smoke --compare-variants --runs 12
 ```
