@@ -286,6 +286,168 @@ impl TokenPool {
     }
 }
 
+pub fn shuffle_with_seed<T>(rng: &mut RunSeed, items: &mut [T]) {
+    for index in (1..items.len()).rev() {
+        let swap_with = rng.next_bounded((index + 1) as u32) as usize;
+        items.swap(index, swap_with);
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DrawPile<T> {
+    draw: Vec<T>,
+    discard: Vec<T>,
+}
+
+impl<T> DrawPile<T> {
+    pub fn new(cards: impl IntoIterator<Item = T>) -> Self {
+        Self {
+            draw: cards.into_iter().collect(),
+            discard: Vec::new(),
+        }
+    }
+
+    pub fn remaining(&self) -> usize {
+        self.draw.len()
+    }
+
+    pub fn discard_count(&self) -> usize {
+        self.discard.len()
+    }
+
+    pub fn shuffle_draw(&mut self, rng: &mut RunSeed) {
+        shuffle_with_seed(rng, &mut self.draw);
+    }
+
+    pub fn draw(&mut self) -> Option<T> {
+        self.draw.pop()
+    }
+
+    pub fn discard(&mut self, card: T) {
+        self.discard.push(card);
+    }
+
+    pub fn recycle_discard(&mut self, rng: &mut RunSeed) {
+        self.draw.append(&mut self.discard);
+        self.shuffle_draw(rng);
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PhaseTrack {
+    phases: Vec<String>,
+    active: usize,
+}
+
+impl PhaseTrack {
+    pub fn new(phases: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        Self {
+            phases: phases.into_iter().map(Into::into).collect(),
+            active: 0,
+        }
+    }
+
+    pub fn active(&self) -> Option<&str> {
+        self.phases.get(self.active).map(String::as_str)
+    }
+
+    pub fn advance(&mut self) -> Option<&str> {
+        if self.phases.is_empty() {
+            return None;
+        }
+        self.active = (self.active + 1) % self.phases.len();
+        self.active()
+    }
+
+    pub fn set_active(&mut self, phase: &str) -> bool {
+        if let Some(index) = self.phases.iter().position(|candidate| candidate == phase) {
+            self.active = index;
+            true
+        } else {
+            false
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ActionBudget {
+    max: u32,
+    remaining: u32,
+}
+
+impl ActionBudget {
+    pub fn new(max: u32) -> Self {
+        Self {
+            max,
+            remaining: max,
+        }
+    }
+
+    pub fn remaining(&self) -> u32 {
+        self.remaining
+    }
+
+    pub fn spend(&mut self, count: u32) -> bool {
+        if count == 0 || self.remaining < count {
+            return false;
+        }
+        self.remaining -= count;
+        true
+    }
+
+    pub fn refresh(&mut self) {
+        self.remaining = self.max;
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub struct GridPoint {
+    pub x: i32,
+    pub y: i32,
+}
+
+impl GridPoint {
+    pub fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
+    }
+
+    pub fn orthogonal_neighbors(&self) -> [GridPoint; 4] {
+        [
+            GridPoint::new(self.x, self.y - 1),
+            GridPoint::new(self.x + 1, self.y),
+            GridPoint::new(self.x, self.y + 1),
+            GridPoint::new(self.x - 1, self.y),
+        ]
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RectGrid {
+    pub width: i32,
+    pub height: i32,
+}
+
+impl RectGrid {
+    pub fn new(width: i32, height: i32) -> Self {
+        Self {
+            width: width.max(0),
+            height: height.max(0),
+        }
+    }
+
+    pub fn contains(&self, point: GridPoint) -> bool {
+        point.x >= 0 && point.y >= 0 && point.x < self.width && point.y < self.height
+    }
+
+    pub fn orthogonal_neighbors(&self, point: GridPoint) -> Vec<GridPoint> {
+        point
+            .orthogonal_neighbors()
+            .into_iter()
+            .filter(|neighbor| self.contains(*neighbor))
+            .collect()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SimulationRun {
     pub run_id: String,
@@ -608,6 +770,52 @@ mod tests {
         assert!(tokens.spend("tiger", 1));
         assert!(!tokens.spend("coin", 2));
         assert_eq!(tokens.gain("coin", 2), 3);
+    }
+
+    #[test]
+    fn draw_piles_shuffle_draw_and_recycle_repeatably() {
+        let mut left = DrawPile::new(["a", "b", "c", "d"]);
+        let mut right = DrawPile::new(["a", "b", "c", "d"]);
+        let mut left_rng = RunSeed::new("deck-seed");
+        let mut right_rng = RunSeed::new("deck-seed");
+
+        left.shuffle_draw(&mut left_rng);
+        right.shuffle_draw(&mut right_rng);
+
+        assert_eq!(left.draw(), right.draw());
+        let card = left.draw().expect("card remains");
+        left.discard(card);
+        assert_eq!(left.discard_count(), 1);
+        left.recycle_discard(&mut left_rng);
+        assert_eq!(left.discard_count(), 0);
+        assert_eq!(left.remaining(), 3);
+    }
+
+    #[test]
+    fn phase_action_and_grid_helpers_cover_common_table_flow() {
+        let mut phases = PhaseTrack::new(["draft", "action", "cleanup"]);
+        assert_eq!(phases.active(), Some("draft"));
+        assert_eq!(phases.advance(), Some("action"));
+        assert!(phases.set_active("cleanup"));
+        assert_eq!(phases.active(), Some("cleanup"));
+        assert!(!phases.set_active("missing"));
+
+        let mut actions = ActionBudget::new(2);
+        assert!(actions.spend(1));
+        assert!(!actions.spend(2));
+        actions.refresh();
+        assert_eq!(actions.remaining(), 2);
+
+        let grid = RectGrid::new(3, 2);
+        let neighbors = grid.orthogonal_neighbors(GridPoint::new(1, 0));
+        assert_eq!(
+            neighbors,
+            vec![
+                GridPoint::new(2, 0),
+                GridPoint::new(1, 1),
+                GridPoint::new(0, 0)
+            ]
+        );
     }
 
     #[test]

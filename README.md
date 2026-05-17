@@ -43,6 +43,8 @@ The first crate, `rally-core`, provides:
 - deterministic seeded run primitives,
 - deterministic dice primitives for reusable mechanical resolution,
 - tabletop turn order, score track, and token-pool helpers,
+- deterministic shuffle/draw piles, phase tracks, action budgets, and grid
+  coordinates for board/card/table games,
 - bounded sampling and percentage helpers for repeatable simulations,
 - stable scenario/scene/beat references,
 - JSONL event-log row output,
