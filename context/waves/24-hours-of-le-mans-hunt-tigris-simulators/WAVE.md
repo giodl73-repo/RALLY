@@ -24,6 +24,8 @@ seeded runs, actor traces, metrics, and validation rows.
 - Standardize simulator variant output with RALLY comparison reports.
 - Expand beyond the first pilots with HUNT Game Night multi-author simulation
   and TIGRIS UPSTAGE party-game robustness simulation.
+- Promote second-pilot findings back into HUNT and TIGRIS product docs without
+  moving scenario or rule policy into RALLY.
 - Track adapter-owned policy explicitly so RALLY stays generic.
 
 ## Validation
