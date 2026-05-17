@@ -64,6 +64,71 @@ pub fn percent_of(numerator: u32, denominator: u32) -> f64 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SimulationRun {
+    pub run_id: String,
+    pub adapter: String,
+    pub subject: String,
+    pub seed_label: String,
+}
+
+impl SimulationRun {
+    pub fn new(adapter: &str, subject: &str, seed_label: &str) -> Self {
+        Self {
+            run_id: format!("{adapter}:{subject}:{seed_label}"),
+            adapter: adapter.to_string(),
+            subject: subject.to_string(),
+            seed_label: seed_label.to_string(),
+        }
+    }
+
+    pub fn rng(&self) -> RunSeed {
+        RunSeed::new(&self.run_id)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ActorTrace {
+    pub actor_id: String,
+    pub role: String,
+    pub actions: u32,
+    pub blocked_turns: u32,
+}
+
+impl ActorTrace {
+    pub fn new(actor_id: &str, role: &str) -> Self {
+        Self {
+            actor_id: actor_id.to_string(),
+            role: role.to_string(),
+            actions: 0,
+            blocked_turns: 0,
+        }
+    }
+
+    pub fn record_action(&mut self) {
+        self.actions += 1;
+    }
+
+    pub fn record_blocked_turn(&mut self) {
+        self.blocked_turns += 1;
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct SimulationMetric {
+    pub name: String,
+    pub value: f64,
+}
+
+impl SimulationMetric {
+    pub fn new(name: &str, value: f64) -> Self {
+        Self {
+            name: name.to_string(),
+            value,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BeatRef {
     pub scenario_id: String,
     pub scene_id: String,
@@ -228,6 +293,26 @@ mod tests {
         assert_eq!(pass.status(), "pass");
         assert_eq!(review.status(), "review");
         assert_eq!(error.status(), "error");
+    }
+
+    #[test]
+    fn simulation_runs_create_repeatable_rngs() {
+        let run = SimulationRun::new("hunt-sim", "wavelength", "smoke");
+        let mut left = run.rng();
+        let mut right = run.rng();
+
+        assert_eq!(run.run_id, "hunt-sim:wavelength:smoke");
+        assert_eq!(left.next_u32(), right.next_u32());
+    }
+
+    #[test]
+    fn actor_traces_count_actions_and_blocks() {
+        let mut trace = ActorTrace::new("solver-speedster", "solver");
+        trace.record_action();
+        trace.record_blocked_turn();
+
+        assert_eq!(trace.actions, 1);
+        assert_eq!(trace.blocked_turns, 1);
     }
 
     #[test]
