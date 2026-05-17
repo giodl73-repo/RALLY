@@ -21,6 +21,7 @@ seeded runs, actor traces, metrics, and validation rows.
   adoption pressure.
 - Add HUNT variant comparison so WAVELENGTH can test fixes for P5/P6
   bottlenecks and target-window pressure.
+- Standardize simulator variant output with RALLY comparison reports.
 - Track adapter-owned policy explicitly so RALLY stays generic.
 
 ## Validation
