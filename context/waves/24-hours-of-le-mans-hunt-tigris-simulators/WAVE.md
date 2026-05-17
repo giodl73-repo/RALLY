@@ -17,6 +17,8 @@ seeded runs, actor traces, metrics, and validation rows.
 - Add a HUNT puzzle-hunt simulator pilot for WAVELENGTH.
 - Add batch/endurance telemetry so each pilot surfaces design risk, not only
   smoke-test success.
+- Add TIGRIS rule-variant comparison so Parliament can test fixes for weak
+  adoption pressure.
 - Track adapter-owned policy explicitly so RALLY stays generic.
 
 ## Validation
@@ -29,6 +31,7 @@ cd ..\tigris\tools\tigris-sim
 cargo test --quiet
 cargo run --quiet -- --seed parliament-smoke
 cargo run --quiet -- --seed parliament-smoke --runs 20 --players 4
+cargo run --quiet -- --seed parliament-smoke --compare-variants --runs 20 --players 4
 
 cd ..\..\hunt\tools\hunt-sim
 cargo test --quiet
