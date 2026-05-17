@@ -27,6 +27,15 @@ SCENARIO -> SEEDED RUN -> EVENT LOG -> VALIDATION REPORT -> EVIDENCE PACKET
 RALLY owns that shared shape. Repo-local adapters decide what a scene, beat,
 player, puzzle, Parliament stake, or room mechanism means.
 
+## Phase motif
+
+RALLY phases use famous speed races as planning mnemonics:
+
+1. **Cannonball Run** - foundation and first adoption plans.
+2. **Mille Miglia** - AMAZE adapter extraction.
+3. **Dakar Rally** - QUEST mechanics compatibility.
+4. **24 Hours of Le Mans** - HUNT and TIGRIS endurance validation.
+
 ## Initial core
 
 The first crate, `rally-core`, provides:

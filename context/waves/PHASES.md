@@ -1,16 +1,22 @@
 # RALLY Waves
 
-Work is organized into small waves and pulses.
+Work is organized into famous speed-race themed phases and small pulses. The
+names are planning mnemonics for repeatable runs, validation pressure, and
+adapter endurance; they are not endorsements of unsafe driving or illegal
+racing.
 
 ## Phase map
 
 | Phase | Name | Focus | Status |
 |---:|---|---|---|
-| 1 | Campfire | Foundation, core crate, docs, and first validation contract | active |
+| 1 | Cannonball Run | Foundation, core crate, docs, and first adoption plans | done |
+| 2 | Mille Miglia | AMAZE adapter extraction from the existing Rust harness | planned |
+| 3 | Dakar Rally | QUEST mechanics compatibility behind a RALLY adapter | planned |
+| 4 | 24 Hours of Le Mans | HUNT and TIGRIS endurance validation adapters | planned |
 
 ## Active wave
 
-- `campfire-foundation`
+- No active wave. Cannonball Run is complete.
 
 ## Protocol
 

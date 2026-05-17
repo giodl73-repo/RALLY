@@ -6,11 +6,11 @@ Create the repository foundation and first tested product-neutral contract.
 
 ## Changes
 
-- Add Rust crate skeleton.
-- Add README and product plan.
-- Add wave and pulse scaffolding.
-- Add repo-specific skills and roles.
-- Add deterministic seed, event-log, validation-report, and packet-manifest
+- Added Rust crate skeleton.
+- Added README and product plan.
+- Added wave and pulse scaffolding.
+- Added repo-specific skills and roles.
+- Added deterministic seed, event-log, validation-report, and packet-manifest
   primitives.
 
 ## Validation

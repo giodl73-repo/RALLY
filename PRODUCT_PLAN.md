@@ -12,7 +12,21 @@ game and not general developer tooling. It exists so game-design repos can share
 the same proof surface for seeded runs, event logs, validation reports, and
 evidence packets while preserving repo-local creative contracts.
 
-## Phase 1: Campfire - Foundation
+## Phase naming motif
+
+RALLY phases use famous speed races as planning mnemonics for repeatable runs,
+adapter endurance, and validation pressure. The names are product metaphors for
+testing and simulation flow; they are not endorsements of unsafe driving or
+illegal racing.
+
+| Phase | Race motif | RALLY focus |
+|---:|---|---|
+| 1 | Cannonball Run | Foundation, seeded core, and first consumer plans. |
+| 2 | Mille Miglia | AMAZE adapter extraction from an existing Rust harness. |
+| 3 | Dakar Rally | QUEST mechanics compatibility across rough narrative/mechanical terrain. |
+| 4 | 24 Hours of Le Mans | HUNT and TIGRIS endurance validation across long pipelines and corpora. |
+
+## Phase 1: Cannonball Run - Foundation
 
 Goal: establish the product-neutral Rust core and the first adoption contract.
 
@@ -25,7 +39,7 @@ Planned capabilities:
 - Packet manifest skeleton.
 - Explicit consumer map for AMAZE, QUEST, HUNT, and TIGRIS.
 
-## Phase 2: Caravan - AMAZE adapter extraction
+## Phase 2: Mille Miglia - AMAZE adapter extraction
 
 Goal: move product-neutral pieces from the AMAZE harness into RALLY without
 breaking AMAZE commands.
@@ -37,7 +51,7 @@ Planned capabilities:
 - Shared packet manifest conventions.
 - AMAZE adapter compatibility tests.
 
-## Phase 3: Muster - QUEST mechanics port
+## Phase 3: Dakar Rally - QUEST mechanics port
 
 Goal: prototype a QUEST adapter boundary for deterministic mechanics.
 
@@ -48,7 +62,7 @@ Planned capabilities:
 - Mechanical beat validation surfaces.
 - No narrative rewrite.
 
-## Phase 4: Circuit - HUNT and TIGRIS adapters
+## Phase 4: 24 Hours of Le Mans - HUNT and TIGRIS adapters
 
 Goal: prove the RALLY contract across puzzle hunts and board-game Parliament
 records.

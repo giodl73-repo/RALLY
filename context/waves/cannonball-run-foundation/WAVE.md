@@ -1,4 +1,4 @@
-# Campfire - Foundation
+# Cannonball Run - Foundation
 
 ## Goal
 
@@ -17,14 +17,15 @@ policy out of the consumer repos.
 | Pulse | Title | Status | Outcome |
 |------:|-------|--------|---------|
 | 01 | Workspace foundation | done | Created Rust crate, docs, roles, skills, and first tested contract. |
-| 02 | AMAZE extraction plan | pending | Identify product-neutral harness pieces to extract first. |
-| 03 | QUEST compatibility plan | pending | Define Python-to-Rust compatibility checks for dice, event logs, and checkpoints. |
+| 02 | AMAZE extraction plan | done | Identified product-neutral harness pieces to extract first. |
+| 03 | QUEST compatibility plan | done | Defined Python-to-Rust compatibility checks for dice, event logs, and checkpoints. |
 
 ## Success criteria
 
 - README explains the repo purpose and first command.
-- Product plan names consumer repos and non-goals.
+- Product plan names speed-race phases, consumer repos, and non-goals.
 - Wave/pulse scaffolding exists.
 - Skills exist for future wave, pulse, and research execution.
 - `rally-core` has passing tests for deterministic seeds, validation status, and
   event-log output.
+- AMAZE extraction and QUEST compatibility plans exist before consumer adoption.
