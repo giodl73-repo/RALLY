@@ -74,11 +74,16 @@ Planned capabilities:
 - HUNT puzzle graph and solver coverage validation.
 - TIGRIS stage/stake/rubric consistency validation.
 - Adapter-owned policy with RALLY-owned run/report/packet primitives.
+- RUNE field-metadata contracts for the neutral run/report/evidence spine.
 
 First pilots:
 
 - `HUNT/tools/hunt-sim`: WAVELENGTH feeder/meta solve-time simulation.
 - `TIGRIS/tools/tigris-sim`: Parliament axis-collision/adoption simulation.
+
+Status: RALLY now retains `docs\rune\simulation_contracts.json` for its neutral
+simulation and validation evidence contracts. This is the first RUNE games
+adoption spike and does not move product-specific policy into RALLY.
 
 ## Non-goals
 

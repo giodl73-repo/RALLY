@@ -1,0 +1,352 @@
+{
+  "collection_id": "rally.simulation_contracts",
+  "collection_version": "v0",
+  "descriptors": [
+    {
+      "id": "rally.simulation.run",
+      "version": "v0",
+      "kind": "state",
+      "rust_type": "SimulationRun",
+      "fields": [
+        {
+          "name": "run_id",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "hunt-sim:wavelength:smoke",
+            "stability": "stable",
+            "aliases": [
+              "simulation_id"
+            ]
+          }
+        },
+        {
+          "name": "adapter",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "hunt-sim",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "subject",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "wavelength",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "seed_label",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "smoke",
+            "stability": "stable"
+          }
+        }
+      ],
+      "invariants": [
+        {
+          "id": "rally.simulation.run.id.present",
+          "text": "run_id is not empty"
+        }
+      ],
+      "trace_links": [
+        {
+          "relation": "requirement",
+          "target": "RUNE-REQ-076"
+        }
+      ],
+      "extensions": [
+        {
+          "namespace": "rally.simulation",
+          "name": "adoption_lane",
+          "value": "first_games_spike"
+        }
+      ]
+    },
+    {
+      "id": "rally.simulation.actor_trace",
+      "version": "v0",
+      "kind": "evidence",
+      "rust_type": "ActorTrace",
+      "fields": [
+        {
+          "name": "actor_id",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "player-1",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "role",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "solver",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "actions",
+          "rust_type": "u32",
+          "metadata": {
+            "required": true,
+            "unit": "count",
+            "min": "0",
+            "sensitivity": "public",
+            "example": "3",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "blocked_turns",
+          "rust_type": "u32",
+          "metadata": {
+            "required": true,
+            "unit": "turns",
+            "min": "0",
+            "sensitivity": "public",
+            "example": "1",
+            "stability": "stable"
+          }
+        }
+      ],
+      "invariants": [
+        {
+          "id": "rally.simulation.actor_trace.actions.non_negative",
+          "text": "actions >= 0"
+        },
+        {
+          "id": "rally.simulation.actor_trace.blocked_turns.non_negative",
+          "text": "blocked_turns >= 0"
+        }
+      ],
+      "trace_links": [
+        {
+          "relation": "requirement",
+          "target": "RUNE-REQ-076"
+        }
+      ],
+      "extensions": []
+    },
+    {
+      "id": "rally.simulation.metric",
+      "version": "v0",
+      "kind": "evidence",
+      "rust_type": "SimulationMetric",
+      "fields": [
+        {
+          "name": "name",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "pass_rate",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "value",
+          "rust_type": "f64",
+          "metadata": {
+            "required": true,
+            "unit": "metric-value",
+            "sensitivity": "public",
+            "example": "63.9",
+            "stability": "stable"
+          }
+        }
+      ],
+      "invariants": [
+        {
+          "id": "rally.simulation.metric.name.present",
+          "text": "name is not empty"
+        }
+      ],
+      "trace_links": [
+        {
+          "relation": "requirement",
+          "target": "RUNE-REQ-076"
+        }
+      ],
+      "extensions": []
+    },
+    {
+      "id": "rally.simulation.comparison_delta",
+      "version": "v0",
+      "kind": "evidence",
+      "rust_type": "ComparisonDelta",
+      "fields": [
+        {
+          "name": "metric",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "pass_rate",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "baseline",
+          "rust_type": "f64",
+          "metadata": {
+            "required": true,
+            "unit": "metric-value",
+            "sensitivity": "public",
+            "example": "38.9",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "candidate",
+          "rust_type": "f64",
+          "metadata": {
+            "required": true,
+            "unit": "metric-value",
+            "sensitivity": "public",
+            "example": "63.9",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "direction",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "higher",
+            "stability": "stable"
+          }
+        }
+      ],
+      "invariants": [
+        {
+          "id": "rally.simulation.comparison_delta.metric.present",
+          "text": "metric is not empty"
+        }
+      ],
+      "trace_links": [
+        {
+          "relation": "requirement",
+          "target": "RUNE-REQ-076"
+        }
+      ],
+      "extensions": []
+    },
+    {
+      "id": "rally.validation.finding",
+      "version": "v0",
+      "kind": "evidence",
+      "rust_type": "ValidationFinding",
+      "fields": [
+        {
+          "name": "severity",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "warning",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "code",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "RALLY-WARN-001",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "location",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "run.actor[0]",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "message",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "Actor had blocked turns",
+            "stability": "stable"
+          }
+        }
+      ],
+      "invariants": [
+        {
+          "id": "rally.validation.finding.code.present",
+          "text": "code is not empty"
+        }
+      ],
+      "trace_links": [
+        {
+          "relation": "requirement",
+          "target": "RUNE-REQ-076"
+        }
+      ],
+      "extensions": []
+    },
+    {
+      "id": "rally.validation.report",
+      "version": "v0",
+      "kind": "artifact",
+      "rust_type": "ValidationReport",
+      "fields": [
+        {
+          "name": "subject",
+          "rust_type": "String",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "hunt-sim:wavelength",
+            "stability": "stable"
+          }
+        },
+        {
+          "name": "findings",
+          "rust_type": "Vec < ValidationFinding >",
+          "metadata": {
+            "required": true,
+            "sensitivity": "public",
+            "example": "[]",
+            "stability": "stable"
+          }
+        }
+      ],
+      "invariants": [
+        {
+          "id": "rally.validation.report.subject.present",
+          "text": "subject is not empty"
+        }
+      ],
+      "trace_links": [
+        {
+          "relation": "requirement",
+          "target": "RUNE-REQ-076"
+        }
+      ],
+      "extensions": []
+    }
+  ]
+}

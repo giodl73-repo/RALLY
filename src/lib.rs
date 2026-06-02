@@ -1,4 +1,9 @@
+use rune_core::{ContractRegistration, DescriptorCollectionDocument, RuneContract};
+use rune_derive::RuneContract as DeriveRuneContract;
 use std::collections::BTreeMap;
+
+pub const RUNE_COLLECTION_ID: &str = "rally.simulation_contracts";
+pub const RUNE_COLLECTION_VERSION: &str = "v0";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RunSeed {
@@ -652,11 +657,48 @@ impl<T> HiddenZone<T> {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, DeriveRuneContract)]
+#[rune(
+    id = "rally.simulation.run",
+    version = "v0",
+    kind = "state",
+    requirement = "RUNE-REQ-076",
+    invariant(id = "rally.simulation.run.id.present", text = "run_id is not empty"),
+    extension(
+        namespace = "rally.simulation",
+        name = "adoption_lane",
+        value = "first_games_spike"
+    )
+)]
 pub struct SimulationRun {
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "hunt-sim:wavelength:smoke",
+        stability = "stable",
+        alias = "simulation_id"
+    )]
     pub run_id: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "hunt-sim",
+        stability = "stable"
+    )]
     pub adapter: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "wavelength",
+        stability = "stable"
+    )]
     pub subject: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "smoke",
+        stability = "stable"
+    )]
     pub seed_label: String,
 }
 
@@ -675,11 +717,53 @@ impl SimulationRun {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, DeriveRuneContract)]
+#[rune(
+    id = "rally.simulation.actor_trace",
+    version = "v0",
+    kind = "evidence",
+    requirement = "RUNE-REQ-076",
+    invariant(
+        id = "rally.simulation.actor_trace.actions.non_negative",
+        text = "actions >= 0"
+    ),
+    invariant(
+        id = "rally.simulation.actor_trace.blocked_turns.non_negative",
+        text = "blocked_turns >= 0"
+    )
+)]
 pub struct ActorTrace {
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "player-1",
+        stability = "stable"
+    )]
     pub actor_id: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "solver",
+        stability = "stable"
+    )]
     pub role: String,
+    #[rune_field(
+        required = true,
+        unit = "count",
+        min = "0",
+        sensitivity = "public",
+        example = "3",
+        stability = "stable"
+    )]
     pub actions: u32,
+    #[rune_field(
+        required = true,
+        unit = "turns",
+        min = "0",
+        sensitivity = "public",
+        example = "1",
+        stability = "stable"
+    )]
     pub blocked_turns: u32,
 }
 
@@ -702,9 +786,32 @@ impl ActorTrace {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, DeriveRuneContract)]
+#[rune(
+    id = "rally.simulation.metric",
+    version = "v0",
+    kind = "evidence",
+    requirement = "RUNE-REQ-076",
+    invariant(
+        id = "rally.simulation.metric.name.present",
+        text = "name is not empty"
+    )
+)]
 pub struct SimulationMetric {
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "pass_rate",
+        stability = "stable"
+    )]
     pub name: String,
+    #[rune_field(
+        required = true,
+        unit = "metric-value",
+        sensitivity = "public",
+        example = "63.9",
+        stability = "stable"
+    )]
     pub value: f64,
 }
 
@@ -717,11 +824,47 @@ impl SimulationMetric {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, DeriveRuneContract)]
+#[rune(
+    id = "rally.simulation.comparison_delta",
+    version = "v0",
+    kind = "evidence",
+    requirement = "RUNE-REQ-076",
+    invariant(
+        id = "rally.simulation.comparison_delta.metric.present",
+        text = "metric is not empty"
+    )
+)]
 pub struct ComparisonDelta {
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "pass_rate",
+        stability = "stable"
+    )]
     pub metric: String,
+    #[rune_field(
+        required = true,
+        unit = "metric-value",
+        sensitivity = "public",
+        example = "38.9",
+        stability = "stable"
+    )]
     pub baseline: f64,
+    #[rune_field(
+        required = true,
+        unit = "metric-value",
+        sensitivity = "public",
+        example = "63.9",
+        stability = "stable"
+    )]
     pub candidate: f64,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "higher",
+        stability = "stable"
+    )]
     pub direction: String,
 }
 
@@ -937,11 +1080,45 @@ impl BoardEventEntry {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, DeriveRuneContract)]
+#[rune(
+    id = "rally.validation.finding",
+    version = "v0",
+    kind = "evidence",
+    requirement = "RUNE-REQ-076",
+    invariant(
+        id = "rally.validation.finding.code.present",
+        text = "code is not empty"
+    )
+)]
 pub struct ValidationFinding {
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "warning",
+        stability = "stable"
+    )]
     pub severity: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "RALLY-WARN-001",
+        stability = "stable"
+    )]
     pub code: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "run.actor[0]",
+        stability = "stable"
+    )]
     pub location: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "Actor had blocked turns",
+        stability = "stable"
+    )]
     pub message: String,
 }
 
@@ -975,9 +1152,31 @@ impl ValidationFinding {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, DeriveRuneContract)]
+#[rune(
+    id = "rally.validation.report",
+    version = "v0",
+    kind = "artifact",
+    requirement = "RUNE-REQ-076",
+    invariant(
+        id = "rally.validation.report.subject.present",
+        text = "subject is not empty"
+    )
+)]
 pub struct ValidationReport {
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "hunt-sim:wavelength",
+        stability = "stable"
+    )]
     pub subject: String,
+    #[rune_field(
+        required = true,
+        sensitivity = "public",
+        example = "[]",
+        stability = "stable"
+    )]
     pub findings: Vec<ValidationFinding>,
 }
 
@@ -1043,6 +1242,42 @@ impl PacketManifest {
             artifacts
         )
     }
+}
+
+pub const RUNE_CONTRACTS: &[ContractRegistration] = &[
+    ContractRegistration {
+        name: "SimulationRun",
+        descriptor: SimulationRun::descriptor,
+    },
+    ContractRegistration {
+        name: "ActorTrace",
+        descriptor: ActorTrace::descriptor,
+    },
+    ContractRegistration {
+        name: "SimulationMetric",
+        descriptor: SimulationMetric::descriptor,
+    },
+    ContractRegistration {
+        name: "ComparisonDelta",
+        descriptor: ComparisonDelta::descriptor,
+    },
+    ContractRegistration {
+        name: "ValidationFinding",
+        descriptor: ValidationFinding::descriptor,
+    },
+    ContractRegistration {
+        name: "ValidationReport",
+        descriptor: ValidationReport::descriptor,
+    },
+];
+
+pub fn rune_descriptor_collection() -> Result<DescriptorCollectionDocument, String> {
+    DescriptorCollectionDocument::from_registrations(
+        RUNE_COLLECTION_ID,
+        RUNE_COLLECTION_VERSION,
+        RUNE_CONTRACTS,
+        "RALLY-RUNE-001",
+    )
 }
 
 fn json_f64(value: f64) -> String {
@@ -1349,5 +1584,38 @@ mod tests {
             .to_jsonl()
             .contains("\"event_type\":\"resource_conversion\""));
         assert!(control.to_jsonl().contains("\"quantity\":2"));
+    }
+
+    #[test]
+    fn rune_contract_registry_preserves_simulation_metadata() {
+        let collection = rune_descriptor_collection().expect("rune descriptor collection");
+
+        assert_eq!(collection.collection_id, RUNE_COLLECTION_ID);
+        assert_eq!(collection.descriptors[0].id, "rally.simulation.run");
+        assert_eq!(
+            collection.descriptors[0].fields[0].metadata.required,
+            Some(true)
+        );
+        assert_eq!(
+            collection.descriptors[0].fields[0].metadata.aliases[0],
+            "simulation_id"
+        );
+        assert_eq!(
+            collection.descriptors[2].fields[1].metadata.unit,
+            Some("metric-value".to_owned())
+        );
+    }
+
+    #[test]
+    fn rune_contract_registry_matches_retained_fixture() {
+        let collection = rune_descriptor_collection().expect("rune descriptor collection");
+        let actual = serde_json::to_string_pretty(&collection).expect("serialize rune collection");
+        let expected = include_str!("../docs/rune/simulation_contracts.json");
+
+        assert_eq!(normalize_newlines(&actual), normalize_newlines(expected));
+    }
+
+    fn normalize_newlines(value: &str) -> String {
+        value.replace("\r\n", "\n").trim_end().to_owned()
     }
 }

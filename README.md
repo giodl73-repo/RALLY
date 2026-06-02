@@ -53,7 +53,8 @@ The first crate, `rally-core`, provides:
 - JSONL event-log row output,
 - validation findings and report status with neutral JSON output,
 - comparison reports with neutral JSON output,
-- packet manifest scaffolding with neutral JSON output.
+- packet manifest scaffolding with neutral JSON output,
+- RUNE field-metadata contracts for the neutral simulation/report spine.
 
 ## First consumers
 
@@ -64,6 +65,21 @@ The first crate, `rally-core`, provides:
 | HUNT | Validate puzzle graphs, solver coverage, blind-test manifests, hint timing, and publish readiness. |
 | TIGRIS | Validate Parliament stage completeness, axis/stake rows, seeded playthrough manifests, and corpus/rubric consistency. |
 | CERES | Model real local-production economies and industries while using only RALLY's neutral run/report/evidence spine. |
+
+## RUNE contracts
+
+RALLY exposes a first RUNE descriptor collection for its neutral simulator and
+validation evidence types:
+
+```text
+docs\rune\simulation_contracts.json
+```
+
+The collection covers `SimulationRun`, `ActorTrace`, `SimulationMetric`,
+`ComparisonDelta`, `ValidationFinding`, and `ValidationReport`. It uses
+RUNE field metadata for required status, units, sensitivity, examples,
+stability, and aliases without moving HUNT, TIGRIS, or other product policy into
+RALLY.
 
 ## Non-goals
 
