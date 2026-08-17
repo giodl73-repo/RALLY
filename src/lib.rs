@@ -1501,6 +1501,31 @@ mod tests {
     }
 
     #[test]
+    fn proof_fixtures_record_pass_and_structured_failure() {
+        let accepted = ValidationReport {
+            subject: "fixture:accepted".to_string(),
+            findings: vec![],
+        };
+        let rejected = ValidationReport {
+            subject: "fixture:rejected".to_string(),
+            findings: vec![ValidationFinding::error(
+                "missing-beat",
+                "SCENES.md#beat-cards",
+                "beat reference does not exist",
+            )],
+        };
+
+        assert_eq!(
+            accepted.to_json(),
+            include_str!("../fixtures/proof/accepted-report.json").trim()
+        );
+        assert_eq!(
+            rejected.to_json(),
+            include_str!("../fixtures/proof/rejected-report.json").trim()
+        );
+    }
+
+    #[test]
     fn simulation_runs_create_repeatable_rngs() {
         let run = SimulationRun::new("hunt-sim", "wavelength", "smoke");
         let mut left = run.rng();

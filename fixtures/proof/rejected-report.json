@@ -1,0 +1,1 @@
+{"subject":"fixture:rejected","status":"error","findings":[{"severity":"error","code":"missing-beat","location":"SCENES.md#beat-cards","message":"beat reference does not exist"}]}

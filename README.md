@@ -15,6 +15,15 @@ contracts, personas, and review language.
 cargo test
 ```
 
+For the smallest operator-facing proof, run:
+
+```powershell
+cargo test proof_fixtures_record_pass_and_structured_failure
+```
+
+[`docs\proof-surface.md`](docs/proof-surface.md) explains the retained accepted
+and structured-failure fixtures and the product-policy boundary.
+
 ## Product thesis
 
 Game-design repos need repeatable validation without flattening their media.
