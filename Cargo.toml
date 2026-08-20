@@ -8,6 +8,7 @@ rune-core = { git = "https://github.com/giodl73-repo/RUNE.git", rev = "ad0097001
 rune-derive = { git = "https://github.com/giodl73-repo/RUNE.git", rev = "ad0097001138c63c12d23e5caef861eac0f5aed6" }
 
 [dev-dependencies]
+scenarium = { git = "https://github.com/giodl73-repo/SCENARIUM.git", rev = "b95e93e8830c800df717904f20d04354515ce1a4" }
 serde_json = "1"
 
 [workspace]

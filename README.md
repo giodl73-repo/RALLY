@@ -47,6 +47,9 @@ SCENARIO -> SEEDED RUN -> EVENT LOG -> VALIDATION REPORT -> EVIDENCE PACKET
 RALLY owns that shared shape. Repo-local adapters decide what a scene, beat,
 player, puzzle, Parliament stake, or room mechanism means.
 
+SCENARIUM compatibility and the exact neutral-type migration ledger are
+documented in [`docs/scenarium-compatibility.md`](docs/scenarium-compatibility.md).
+
 ## Phase motif
 
 RALLY phases use famous speed races as planning mnemonics:

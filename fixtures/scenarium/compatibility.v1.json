@@ -1,0 +1,17 @@
+{
+  "schema": "rally.scenarium-compat.v1",
+  "cases": [
+    {
+      "subject": "fixture:accepted",
+      "rally_status": "pass",
+      "scenarium_status": "pass",
+      "run_id": "run:5:rally|16:fixture:accepted|5:proof|7:inertia|7:inertia"
+    },
+    {
+      "subject": "fixture:rejected",
+      "rally_status": "error",
+      "scenarium_status": "error",
+      "run_id": "run:5:rally|16:fixture:rejected|5:proof|7:inertia|7:inertia"
+    }
+  ]
+}

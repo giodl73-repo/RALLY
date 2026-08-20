@@ -38,6 +38,7 @@ version = "0.1.0"
 dependencies = [
  "rune-core",
  "rune-derive",
+ "scenarium",
  "serde_json",
 ]
 
@@ -57,6 +58,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn",
+]
+
+[[package]]
+name = "scenarium"
+version = "0.1.0"
+source = "git+https://github.com/giodl73-repo/SCENARIUM.git?rev=b95e93e8830c800df717904f20d04354515ce1a4#b95e93e8830c800df717904f20d04354515ce1a4"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
