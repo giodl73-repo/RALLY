@@ -1,0 +1,93 @@
+{
+  "schema": "rally.consumer-surfaces.v1",
+  "cases": [
+    {
+      "consumer": "AMAZE",
+      "surface": "seeded-sampling",
+      "expected": {
+        "samples": [15, 13],
+        "percent": 75.0
+      }
+    },
+    {
+      "consumer": "QUEST",
+      "surface": "deterministic-dice",
+      "expected": {
+        "expression": "2d6+1",
+        "rolls": [5, 2],
+        "total": 8,
+        "seed_position": 0
+      }
+    },
+    {
+      "consumer": "HUNT",
+      "surface": "simulation-validation",
+      "expected": {
+        "run_id": "hunt-sim:wavelength:smoke",
+        "status": "pass"
+      }
+    },
+    {
+      "consumer": "TIGRIS",
+      "surface": "tabletop-state",
+      "expected": {
+        "active_before": "human",
+        "active_after": "ai",
+        "human_score": 3,
+        "stake_spent": true,
+        "stake_remaining": 1
+      }
+    },
+    {
+      "consumer": "BANISH",
+      "surface": "actor-trace-metrics",
+      "expected": {
+        "run_id": "banish:first-winter:proof",
+        "actions": 1,
+        "blocked_turns": 1,
+        "metric": {
+          "name": "survival_rate",
+          "value": 80.0
+        }
+      }
+    },
+    {
+      "consumer": "CERES",
+      "surface": "comparison-evidence-packet",
+      "expected": {
+        "comparison": {
+          "subject": "tier-a",
+          "baseline_id": "market",
+          "candidate_id": "coop",
+          "status": "improved",
+          "improved_count": 2,
+          "deltas": [
+            {
+              "metric": "resilience",
+              "baseline": 40,
+              "candidate": 55,
+              "direction": "higher",
+              "change": 15,
+              "improved": true
+            },
+            {
+              "metric": "cost",
+              "baseline": 100,
+              "candidate": 90,
+              "direction": "lower",
+              "change": -10,
+              "improved": true
+            }
+          ]
+        },
+        "packet": {
+          "packet_id": "ceres:tier-a:proof",
+          "artifacts": {
+            "comparison": "comparison.json",
+            "report": "report.json"
+          }
+        }
+      }
+    }
+  ]
+}

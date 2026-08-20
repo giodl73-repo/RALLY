@@ -24,6 +24,16 @@ cargo test proof_fixtures_record_pass_and_structured_failure
 [`docs\proof-surface.md`](docs/proof-surface.md) explains the retained accepted
 and structured-failure fixtures and the product-policy boundary.
 
+For the six current source-level consumers, run:
+
+```powershell
+cargo test --test consumer_contracts
+```
+
+The [consumer compatibility contract](docs/consumer-compatibility.md) records
+representative neutral compatibility canaries for AMAZE, QUEST, HUNT, TIGRIS,
+BANISH, and CERES plus migration, deprecation, and rollback rules.
+
 ## Product thesis
 
 Game-design repos need repeatable validation without flattening their media.
