@@ -9,7 +9,10 @@ validation evidence spine:
 
 The fixture preserves field metadata for required status, units, sensitivity,
 examples, stability, and aliases. It does not encode HUNT, TIGRIS, AMAZE,
-BANISH, QUEST, or CERES product policy.
+BANISH, QUEST, or CERES product policy, and it does not approve downstream
+product adoption. The JSON repeats that boundary at collection level so
+generated descriptor views cannot read neutral RALLY metadata as consumer
+contract authority.
 
 Validation:
 

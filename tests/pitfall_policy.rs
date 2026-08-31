@@ -58,6 +58,34 @@ fn rune_metadata_stays_neutral_contract_metadata() {
         descriptors["collection_version"],
         Value::String("v0".to_string())
     );
+    let extensions = descriptors["descriptors"][0]["extensions"]
+        .as_array()
+        .expect("simulation run descriptor must expose boundary extensions");
+    for (name, value) in [
+        (
+            "collection_boundary",
+            "neutral simulation and validation evidence spine only",
+        ),
+        (
+            "product_policy_boundary",
+            "does not encode consumer product semantics",
+        ),
+        (
+            "adoption_boundary",
+            "does not approve downstream product adoption",
+        ),
+    ] {
+        assert!(
+            extensions
+                .iter()
+                .any(|extension| extension["namespace"] == "rally.boundary"
+                    && extension["name"] == name
+                    && extension["value"] == value),
+            "missing RUNE boundary extension {name}"
+        );
+    }
+    assert!(!docs.contains("product adoption approval"));
+    assert!(!descriptors.to_string().contains("adoption_lane"));
     assert!(descriptors["descriptors"]
         .as_array()
         .is_some_and(|items| items.len() >= 6));

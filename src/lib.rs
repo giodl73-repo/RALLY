@@ -666,8 +666,23 @@ impl<T> HiddenZone<T> {
     invariant(id = "rally.simulation.run.id.present", text = "run_id is not empty"),
     extension(
         namespace = "rally.simulation",
-        name = "adoption_lane",
-        value = "first_games_spike"
+        name = "compatibility_lane",
+        value = "neutral_games_spike"
+    ),
+    extension(
+        namespace = "rally.boundary",
+        name = "collection_boundary",
+        value = "neutral simulation and validation evidence spine only"
+    ),
+    extension(
+        namespace = "rally.boundary",
+        name = "product_policy_boundary",
+        value = "does not encode consumer product semantics"
+    ),
+    extension(
+        namespace = "rally.boundary",
+        name = "adoption_boundary",
+        value = "does not approve downstream product adoption"
     )
 )]
 pub struct SimulationRun {

@@ -104,7 +104,7 @@ complete machine-readable output through public APIs.
 
 ## RALLY-PF-04: RUNE Metadata Becomes Product Contract Authority
 
-**Status:** OPEN
+**Status:** MITIGATED
 
 **Pattern:** RALLY's RUNE descriptor collection is treated as approval or full
 semantic coverage for HUNT, TIGRIS, BANISH, QUEST, CERES, or other product
@@ -134,14 +134,19 @@ cross-repo traceability.
 **Detection difficulty:** Field metadata looks authoritative because it is
 generated from Rust types and carries requirement references.
 
-**Structural solution:** Keep RUNE metadata limited to the neutral spine and
-require consumer-owned policy docs, tests, and role reviews for product meaning.
+**Structural solution:** Keep RUNE metadata limited to the neutral spine,
+repeat collection-level product-policy and adoption boundaries in the descriptor
+JSON, and require consumer-owned policy docs, tests, and role reviews for
+product meaning.
 
 **Evidence:** `docs/rune/README.md`,
 `context/waves/24-hours-of-le-mans-hunt-tigris-simulators/pulses/pulse-10.md`,
 and `docs/consumer-compatibility.md`.
 
-**Test:** `tests/pitfall_policy.rs`
+**Test:** `tests/pitfall_policy.rs` parses
+`docs/rune/simulation_contracts.json`, requires neutral collection,
+product-policy, and adoption boundaries, and rejects the misleading
+`adoption_lane` extension name.
 
 ## RALLY-PF-05: Shared Evidence Packet Leaks Private Playtest Detail
 
