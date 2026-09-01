@@ -657,6 +657,13 @@ impl<T> HiddenZone<T> {
     }
 }
 
+impl<T> Default for HiddenZone<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[allow(clippy::duplicated_attributes)]
 #[derive(Debug, Clone, PartialEq, Eq, DeriveRuneContract)]
 #[rune(
     id = "rally.simulation.run",

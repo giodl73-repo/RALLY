@@ -75,3 +75,22 @@ publication channel for private consumer material.
 fixtures, examples, packets, or publication artifacts.
 
 **Evidence:** `CLAUDE.md`, `README.md`, and `docs/proof-surface.md`.
+
+## RALLY-I-06: Shared Simulation Boundaries Stay Machine-Readable
+
+**Status:** VERIFIED
+
+**Invariant:** RALLY keeps a machine-readable boundary manifest for neutral
+simulation primitives, consumer-owned semantics, provider canaries, migration
+readiness, private playtest evidence, and RUNE metadata authority.
+
+**Why it matters:** Shared infrastructure earns reuse by being generic, but
+generic tests and examples can look like product policy, migration approval, or
+permission to publish private playtest detail.
+
+**Enforcement:** `tests/pitfall_policy.rs` parses the boundary manifest and
+requires blocked claims for shared harness policy, provider canary readiness,
+and private evidence packets.
+
+**Evidence:** `docs/shared-simulation-boundaries.v1.json` and
+`tests/pitfall_policy.rs`.

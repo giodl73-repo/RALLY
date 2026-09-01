@@ -2,7 +2,7 @@
 
 ## RALLY-PF-01: Shared Harness Absorbs Product Policy
 
-**Status:** OPEN
+**Status:** MITIGATED
 
 **Pattern:** Consumer convenience adds game-specific meanings, thresholds,
 adventure state, puzzle policy, board policy, or CERES economic semantics to
@@ -38,13 +38,16 @@ matrix to name the RALLY-owned neutral surface and the consumer-owned semantics
 before adding shared types.
 
 **Evidence:** `.roles/parliament/harness-boundary-engineer.md`,
-`docs/consumer-compatibility.md`, and `PRODUCT_PLAN.md`.
+`docs/consumer-compatibility.md`, `PRODUCT_PLAN.md`, and
+`docs/shared-simulation-boundaries.v1.json`.
 
-**Test:** `tests/pitfall_policy.rs`
+**Test:** `tests/pitfall_policy.rs` verifies the shared-simulation boundary
+manifest blocks escape-room, D&D, puzzle, board, and CERES economic policy from
+moving into `rally-core`.
 
 ## RALLY-PF-02: Green Provider Canaries Become Consumer Readiness
 
-**Status:** OPEN
+**Status:** MITIGATED
 
 **Pattern:** RALLY's provider-side compatibility tests pass and are treated as
 proof that AMAZE, QUEST, HUNT, TIGRIS, BANISH, or CERES can migrate without
@@ -78,10 +81,13 @@ representative canary rather than exhaustive downstream validation.
 consumer tests, migration instructions, rollback instructions, and owner
 approval.
 
-**Evidence:** `docs/consumer-compatibility.md` and
-`.roles/stakeholders/consumer-advocate.md`.
+**Evidence:** `docs/consumer-compatibility.md`,
+`.roles/stakeholders/consumer-advocate.md`, and
+`docs/shared-simulation-boundaries.v1.json`.
 
-**Test:** `tests/pitfall_policy.rs`
+**Test:** `tests/pitfall_policy.rs` verifies the shared-simulation boundary
+manifest blocks green provider canaries from becoming consumer migration
+approval, workflow-test replacement, rollback waiver, or adoption approval.
 
 ## RALLY-PF-03: Validation Report Shape Drifts Without Failure Evidence
 
@@ -150,7 +156,7 @@ product-policy, and adoption boundaries, and rejects the misleading
 
 ## RALLY-PF-05: Shared Evidence Packet Leaks Private Playtest Detail
 
-**Status:** OPEN
+**Status:** MITIGATED
 
 **Pattern:** A reusable report, packet, fixture, or example carries real room,
 campaign, vendor, player, or private playtest information into the shared RALLY
@@ -183,7 +189,9 @@ harmless until the source owner or participant context is reviewed.
 **Structural solution:** Keep fixtures synthetic or product-neutral and invoke
 the Privacy Reviewer before adding publication-facing examples or packets.
 
-**Evidence:** `.roles/stakeholders/privacy-reviewer.md`, `CLAUDE.md`, and
-`docs/proof-surface.md`.
+**Evidence:** `.roles/stakeholders/privacy-reviewer.md`, `CLAUDE.md`,
+`docs/proof-surface.md`, and `docs/shared-simulation-boundaries.v1.json`.
 
-**Test:** `tests/pitfall_policy.rs`
+**Test:** `tests/pitfall_policy.rs` verifies the shared-simulation boundary
+manifest blocks real room, campaign, vendor, player, or private playtest detail
+from shared fixtures, packets, examples, or docs.

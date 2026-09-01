@@ -1,0 +1,67 @@
+{
+  "$schema": "rally.shared-simulation-boundaries.v1",
+  "owner": "RALLY maintainers",
+  "purpose": "Machine-readable boundaries for shared simulation primitives, provider canaries, and public evidence packets.",
+  "authority": {
+    "neutral_run_report_comparison_and_packet_primitives": "RALLY",
+    "creative_economic_release_and_domain_semantics": "consumer repositories",
+    "consumer_migration_readiness": "affected consumer repositories",
+    "private_room_campaign_vendor_player_and_playtest_evidence": "source consumer repositories and privacy review",
+    "rune_field_metadata": "RALLY neutral descriptor collection"
+  },
+  "consumer_canaries": [
+    "AMAZE",
+    "QUEST",
+    "HUNT",
+    "TIGRIS",
+    "BANISH",
+    "CERES"
+  ],
+  "pitfall_boundaries": [
+    {
+      "pitfall": "RALLY-PF-01",
+      "boundary": "Shared RALLY primitives must stay product-neutral; adapters and consumer repos own product meaning.",
+      "blocked_claims": [
+        "escape-room policy belongs in rally-core",
+        "D&D adventure state belongs in rally-core",
+        "puzzle publish policy belongs in rally-core",
+        "board Parliament semantics belong in rally-core",
+        "CERES economic meaning belongs in rally-core"
+      ],
+      "required_owner": "consumer repositories"
+    },
+    {
+      "pitfall": "RALLY-PF-02",
+      "boundary": "Provider-side canaries are compatibility rehearsals, not consumer migration readiness.",
+      "blocked_claims": [
+        "green RALLY canary approves consumer migration",
+        "provider rehearsal replaces consumer workflow tests",
+        "consumer rollback plan is optional after RALLY passes",
+        "RALLY release notes can approve consumer adoption"
+      ],
+      "required_owner": "affected consumer repositories"
+    },
+    {
+      "pitfall": "RALLY-PF-05",
+      "boundary": "Shared fixtures and packets must stay synthetic or product-neutral unless source owners and privacy review approve publication.",
+      "blocked_claims": [
+        "real room detail belongs in shared fixture",
+        "campaign notes belong in shared evidence packet",
+        "vendor record belongs in public example",
+        "player or playtest detail belongs in RALLY documentation"
+      ],
+      "required_owner": "source consumer repositories and privacy review"
+    }
+  ],
+  "review_roles": [
+    ".roles/parliament/harness-boundary-engineer.md",
+    ".roles/stakeholders/consumer-advocate.md",
+    ".roles/stakeholders/privacy-reviewer.md",
+    ".roles/parliament/evidence-packet-reviewer.md"
+  ],
+  "validation": [
+    "cargo test --test pitfall_policy",
+    "cargo test --test consumer_contracts",
+    "cargo test proof_fixtures_record_pass_and_structured_failure"
+  ]
+}
