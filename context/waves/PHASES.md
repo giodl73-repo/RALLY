@@ -16,6 +16,8 @@ racing.
 
 ## Active wave
 
+- `2026-11-01-mechanics-workbench`: first-party browser consumer and exact-release qualification.
+
 - 24 Hours of Le Mans: HUNT/TIGRIS simulator pilots are underway.
 
 ## Protocol
