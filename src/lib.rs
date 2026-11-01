@@ -657,6 +657,13 @@ impl<T> HiddenZone<T> {
     }
 }
 
+impl<T> Default for HiddenZone<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[allow(clippy::duplicated_attributes)]
 #[derive(Debug, Clone, PartialEq, Eq, DeriveRuneContract)]
 #[rune(
     id = "rally.simulation.run",
@@ -666,8 +673,23 @@ impl<T> HiddenZone<T> {
     invariant(id = "rally.simulation.run.id.present", text = "run_id is not empty"),
     extension(
         namespace = "rally.simulation",
-        name = "adoption_lane",
-        value = "first_games_spike"
+        name = "compatibility_lane",
+        value = "neutral_games_spike"
+    ),
+    extension(
+        namespace = "rally.boundary",
+        name = "collection_boundary",
+        value = "neutral simulation and validation evidence spine only"
+    ),
+    extension(
+        namespace = "rally.boundary",
+        name = "product_policy_boundary",
+        value = "does not encode consumer product semantics"
+    ),
+    extension(
+        namespace = "rally.boundary",
+        name = "adoption_boundary",
+        value = "does not approve downstream product adoption"
     )
 )]
 pub struct SimulationRun {
@@ -1289,10 +1311,17 @@ fn json_f64(value: f64) -> String {
 }
 
 fn escape_json(value: &str) -> String {
-    value
-        .replace('\\', "\\\\")
-        .replace('"', "\\\"")
-        .replace('\n', "\\n")
+    let mut escaped = String::with_capacity(value.len());
+    for ch in value.chars() {
+        match ch {
+            '\\' => escaped.push_str("\\\\"),
+            '"' => escaped.push_str("\\\""),
+            '\n' => escaped.push_str("\\n"),
+            '\u{0}'..='\u{1f}' => escaped.push_str(&format!("\\u{:04x}", u32::from(ch))),
+            _ => escaped.push(ch),
+        }
+    }
+    escaped
 }
 
 fn optional_json_string(value: Option<&str>) -> String {

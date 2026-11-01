@@ -11,6 +11,19 @@ contracts, personas, and review language.
 
 ## First command
 
+Try the [Rust/WASM seeded mechanics workbench](https://giodl73-repo.github.io/RALLY/)
+to edit your seed and neutral script, replay dice/decks/tokens/turns/action
+budgets, and inspect ordered native JSONL events and structured findings.
+Download original/submitted input, complete report, native validation/manifest,
+source, WASM and build notices. Seven authored examples include blocked actions
+and structured errors; no private game or playtest content is published.
+
+Mechanics status does not approve game balance, consumer adoption or private
+content publication. Native modulo RNG remains deterministic and non-cryptographic.
+The [build guide](BUILD.md) explains bounds, separate RNG streams, artifact
+references and mixed license scope. A [native serialization repair](docs/json-control-escaping.md)
+keeps all C0 string inputs valid without changing existing valid output fixtures.
+
 ```powershell
 cargo test
 ```
