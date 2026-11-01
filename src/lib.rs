@@ -1311,10 +1311,17 @@ fn json_f64(value: f64) -> String {
 }
 
 fn escape_json(value: &str) -> String {
-    value
-        .replace('\\', "\\\\")
-        .replace('"', "\\\"")
-        .replace('\n', "\\n")
+    let mut escaped = String::with_capacity(value.len());
+    for ch in value.chars() {
+        match ch {
+            '\\' => escaped.push_str("\\\\"),
+            '"' => escaped.push_str("\\\""),
+            '\n' => escaped.push_str("\\n"),
+            '\u{0}'..='\u{1f}' => escaped.push_str(&format!("\\u{:04x}", u32::from(ch))),
+            _ => escaped.push(ch),
+        }
+    }
+    escaped
 }
 
 fn optional_json_string(value: Option<&str>) -> String {
